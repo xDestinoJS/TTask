@@ -1,0 +1,318 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="./app-style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body style="display:flex;">
+    <transition name="fade">
+      <div id="taskModal" v-on:click.self="closeTask" v-if="modalVisible" style="position:fixed; width:100%; height:100%; background:rgba(0,0,0,0.5); top:0px; left:0px; display:flex; justify-content:center; align-items:center">
+<!--         ADD TASK MODAL -->
+        <div v-if="taskModal" style="background:#1F2126; width:100%; max-width:350px; height:100%; max-height:300px; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          <h1 style="text-align:center;">
+            Add A Task
+          </h1>
+          <div class="input-container">
+            <div class="icon-container">
+              <span class="material-icons" style="color:#989898; opacity:0.43;">edit</span>
+            </div>
+            <input v-model="title" id="email" type="text" placeholder="Task Title">
+          </div>
+          <div class="input-container">
+            <div class="icon-container">
+              <span class="material-icons" style="color:#989898; opacity:0.43;">schedule</span>
+            </div>
+            <input v-model="time" id="datetime" v-bind:id="latestTime" type="datetime-local" onclick="clickedTime()" min="" placeholder="Task Title">
+          </div>
+          <div class="input-container">
+            <div class="icon-container">
+              <span style="color:#989898; opacity:0.43;"><i class="fab fa-discord"></i></span>
+            </div>
+            <input v-model="hook" id="email" type="text" placeholder="Discord Webhook (optional)">
+          </div>
+          <span id="error" class="disclaimer" style="padding:0px; margin:0px; color:#ff004d;">{{error}}</span>
+          <div class="add-task-container">
+            <button v-on:click="addTask" id="email"  class="add-task" placeholder="Task Title">Add Task</button>
+          </div>
+        </div>
+<!--         LOG OUT MODAL -->
+        <div v-else style="background:#1F2126; width:100%; max-width:350px; height:100%; max-height:150px; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          <h1 style="text-align:center; padding-left:10px; padding-right:10px;">
+            Are you sure you want to log out?
+          </h1>
+          <div class="add-task-container" style="background:#ff004d;">
+            <button v-on:click="logout" id="email"  class="add-task" placeholder="Task Title">Yes, I'm sure</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+    <div class="panel-container">
+      <div id="panel">
+        <button v-for="panel in panels" class="panel" onClick="openModal(true)" style="display:flex; align-items:center;">
+          <span class="material-icons" style="font-size:16px; margin-right:5px;">
+            add_task
+          </span>
+          <span id="panelText">
+          {{ panel }}
+          </span>
+        </button>
+        
+        <button class="panel" onClick="toggleHiddenTasks()" style="display:flex; align-items:center;">
+          <span class="material-icons" style="font-size:16px; margin-right:5px;">
+            visibility
+          </span>
+          <span id="panelText">
+          See Hidden Tasks
+          </span>
+        </button>
+        
+        <button class="panel" v-on:click="changeMode" style="display:flex; align-items:center;">
+          <span class="material-icons" style="font-size:16px; margin-right:5px;">
+            {{ icon }}
+          </span>
+          <span id="panelText">
+          Enable {{ mode }} Mode
+          </span>
+        </button>
+        
+        <button class="panel" onClick="logOutBtn()" style="display:flex; align-items:center;">
+          <span class="material-icons" style="font-size:16px; margin-right:5px;">
+            logout
+          </span>
+          <span id="panelText">
+          Logout
+          </span>
+        </button>
+      </div>
+    </div>
+    <div style="flex:1;">
+      <div style="display:flex; flex-wrap:wrap; align-items:center;">
+        <h1 style="margin:0px; padding:0px; margin-bottom:10px; " id="highlight">
+          All tasks
+        </h1>
+      </div>
+      <div style="display:flex; flex-wrap:wrap;">
+  <!--  -->
+        <div id="app" style="width:100%;">
+          <button v-on:click="changeTaskStatus(index)" v-for="(task, index) in tasksForToday" class="task" style="word-wrap:break-word; display:flex; align-items:center; flex-wrap:wrap;" v-bind:class="{ passed: task.passed, completed: task.completed, hide: task.hide}">
+            <h1 style="margin:0px;">
+              {{ task.title }}
+            </h1>
+            <p style="margin:0px; color:white; margin-left: auto; text-align:right;">
+              {{task.time}}
+            </p>
+          </button>
+        </div>
+  <!--  -->
+      </div>
+    </div>
+  </body>
+  
+  <script>
+    let socket = io()
+    let hiddenTasks = true
+    
+    function timeConverter(t) {
+        var a = new Date(t);
+        var today = new Date();
+        var months = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        if(min.toString().length == 1) { min = "0" + min.toString()}
+
+        if (a.setHours(0, 0, 0, 0) == today.setHours(0, 0, 0, 0))
+            return 'For today at ' + hour + ':' + min;
+        else 
+            return `For ${date}/${month}/${year} at ${hour}:${min}`
+    }
+    
+    function updt(t) {
+      let diff = new Date(t) - new Date();
+
+      let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      let hours = Math.floor(diff / (1000 * 60 * 60));
+      let mins = Math.floor(diff / (1000 * 60));
+      let secs = Math.floor(diff / 1000);
+
+      let d = days;
+      let h = hours - days * 24;
+      let m = mins - hours * 60;
+      let s = secs - mins * 60;
+      
+      return `${d} days, ${h} hours, ${m} minutes and ${s} seconds left`
+    }
+    
+    socket.on("connection", (msg) => {
+      app.tasksForToday = msg.tasks
+    })
+    
+    var app = new Vue({
+      el: '#app',
+      data: {
+        tasksForToday: [
+          
+        ]
+      },
+      created(){
+        setInterval(function(){
+          for(var i = 0; i < app.tasksForToday.length; i++){
+            let epoch = app.tasksForToday[i].epoch
+            let final = updt(epoch)
+            
+            app.tasksForToday[i].time = final
+            if(final.startsWith("-") && app.tasksForToday[i]["completed"] == false){
+              app.tasksForToday[i]["passed"] = true
+            }
+            
+            if(final.startsWith("-") && app.tasksForToday[i]["completed"] == true && hiddenTasks == true){
+              app.tasksForToday[i]["hide"] = true
+            } else {
+              app.tasksForToday[i]["hide"] = false
+            }
+          }
+        }, 1000)
+      },
+      methods: {
+        changeTaskStatus: function(i){
+          socket.emit("changeTaskStatus", {
+            id: Cookies.get("session_id"),
+            index: i
+          }, (response) => {
+            location.reload()
+          })
+        }
+      }
+    })
+    
+    
+    function changeColors(){
+      var element = document.getElementById("highlight");
+      element.classList.toggle("light-mode");  
+      
+      var element = document.body
+      element.classList.toggle("light-mode");  
+    }
+  
+    var panel = new Vue({
+      el: "#panel",
+      data: {
+        panels: [
+          "Add Task"
+        ],
+        mode: (Cookies.get("mode") == "dark") ? "light" : "dark",
+        icon: (Cookies.get("mode") == "dark") ? "light_mode" : "dark_mode",
+      },
+      created(){
+        if(!Cookies.get("mode")){ 
+          Cookies.set("mode", "dark") 
+          this.mode = (Cookies.get("mode") == "dark") ? "light" : "dark"
+          this.icon = (Cookies.get("mode") == "dark") ? "light_mode" : "dark_mode"
+        }
+        
+        if(Cookies.get("mode") == "light"){
+          changeColors()
+        }
+        // panel.mode = "dark"
+      },
+      methods: {
+        changeMode: function(){
+          if(Cookies.get("mode") == "dark"){
+            Cookies.set("mode", "light")
+            panel.mode = "dark"
+            panel.icon = "dark_mode"
+            changeColors()
+          } else {
+            Cookies.set("mode", "dark")
+            panel.mode = "light"
+            panel.icon = "light_mode"
+            changeColors()
+          }
+          console.log(panel.mode)
+        }
+      }
+    })
+    
+    
+    
+    var taskModal = new Vue({
+      el: "#taskModal",
+      data: {
+        title: null,
+        time: 0,
+        hook: null,
+        modalVisible: false,
+        latestTime: new Date().toISOString(),
+        error: null,
+        taskModal: true
+      },
+      methods: {
+        addTask: function(){
+          if (taskModal.title == "" || taskModal.title == null){
+            taskModal.error = "A title is required to make a task"
+          } else if(new Date(taskModal.time).getTime() < new Date()){
+            taskModal.error = "Date selected can not be a previous time from now"
+          } else {
+            socket.emit(`addTask`, {
+              title: taskModal.title,
+              epoch: new Date(taskModal.time).getTime(),
+              id: Cookies.get("session_id"),
+              webhook: taskModal.hook,
+              completed: false
+            }, (response) => {
+              if(response.res == true){
+                location.reload()
+              }
+            })
+          }
+        },
+        closeTask: function(){
+          taskModal.error = null
+          openModal(false)
+        },
+        logout: function(){
+          Cookies.remove("session_id")
+          location.reload()
+        }
+      },
+    })
+    
+    socket.emit('getTasks', {
+        email: Cookies.get("session_id")
+      }, (response) => {
+        app.tasksForToday = response
+      });
+    
+    function addTask(){
+      socket.emit(`addTask`, {
+        title: "A task",
+        for: 123123123,
+        id: Cookies.get("session_id")
+      })
+    }
+    
+    function toggleHiddenTasks(){
+      hiddenTasks = !hiddenTasks
+      console.log(hiddenTasks)
+    }
+    
+    function openModal(s){
+      taskModal.modalVisible = s
+      if(s == true){
+        taskModal.taskModal = true
+      }
+    }
+    
+    function logOutBtn(){
+      taskModal.modalVisible = true
+      taskModal.taskModal = false
+    }
+  </script>
+</html>
