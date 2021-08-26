@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="title" style="margin-bottom:0px;">
+            LOGIN
+      </h1>
+      <div style="width:100%; flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+          <div class="input-container">
+            <div class="icon-container">
+              <img id="mail" src="https://i.imgur.com/q2V7icm.png">
+            </div>
+            <input id="email" type="email" placeholder="Email">
+          </div>
+
+          <div class="input-container">
+            <div class="icon-container">
+              <img id="pass" src="https://i.imgur.com/GOqH0CA.png">
+            </div>
+            <input id="pw1" type="password" placeholder="Password">
+          </div>
+
+          <button onclick="createAcc()" class="login-button">
+            Login
+          </button>
+
+          <div class="prompt">
+            or <a href="register" class="highlight">Create an account</a>
+          </div>
+      </div>
+      <span id="error" class="disclaimer" style="padding:0px; margin:0px; color:#ff004d;"></span>
+      <span class="disclaimer">email & password encrypted with bcrypt</span>
+    </div>
+  </body>
+  <script>
+    function uuid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+    
+    var socket = io();
+    let sessionId = uuid()
+    
+    let email = document.getElementById("email")
+    let pw1 = document.getElementById("pw1")
+    let err = document.getElementById("error")
+    
+    function createAcc(){
+      socket.emit('login', {
+        email: email.value,
+        password: pw1.value,
+        sessionId: sessionId
+      }, (response) => {
+        if(response.res == false){
+          err.innerHTML = "Incorrect email or password"
+        } else {
+          Cookies.set('session_id', email.value)
+          location.href = "/app"
+        }
+      });
+    }
+  </script>
+</html>
