@@ -1,0 +1,76 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="title" style="margin-bottom:0px;">
+            REGISTER
+      </h1>
+      <div style="width:100%; flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+          <div class="input-container">
+            <div class="icon-container">
+              <img id="mail" src="https://i.imgur.com/q2V7icm.png">
+            </div>
+            <input id="email" type="email" placeholder="Email">
+          </div>
+
+          <div class="input-container">
+            <div class="icon-container">
+              <img id="pass" src="https://i.imgur.com/GOqH0CA.png">
+            </div>
+            <input id="pw1" type="password" placeholder="Password">
+          </div>
+        
+          <div class="input-container">
+            <div class="icon-container">
+              <img id="pass" src="https://i.imgur.com/GOqH0CA.png">
+            </div>
+            <input id="pw2" type="password" placeholder="Confirm password">
+          </div>
+        
+          <button onclick="createAcc()" class="login-button">
+            Create Account
+          </button>
+
+          <div class="prompt">
+            or <a href="/login" class="highlight">Login</a>
+          </div>
+      </div>
+      <span id="error" class="disclaimer" style="padding:0px; margin:0px; color:#ff004d;"></span>
+      <span id="scsfl" class="disclaimer" style="padding:0px; margin:0px; color:#00E436;"></span>
+      <span class="disclaimer">email & password encrypted with bcrypt</span>
+    </div>
+  </body>
+  
+  <script>
+    var socket = io();
+    
+    let email = document.getElementById("email")
+    let pw1 = document.getElementById("pw1")
+    let pw2 = document.getElementById("pw2")
+    let err = document.getElementById("error")
+    let scs = document.getElementById("scsfl")
+    
+    function createAcc(){
+      if(pw1.value != null && pw2.value != null && (pw1.value == pw2.value) == true){
+        socket.emit('register', {
+          email: email.value,
+          password: pw1.value
+        }, (response) => {
+          if(response.res == false){
+            err.innerHTML = "An account with this email already exists."
+            scs.innerHTML = null
+          } else {
+            scs.innerHTML = "Your account was succesfully created. You can now login!"
+            err.innerHTML = null
+          }
+        }); 
+      } else {
+        alert("error cus noob")
+      }
+    }
+  </script>
+</html>
