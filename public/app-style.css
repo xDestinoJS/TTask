@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+input:focus, textarea:focus, select:focus{
+      outline: none;
+}
+
+body {
+  background:#2C3340;
+  padding:20px;
+  width:100%;
+  height:100%;
+  margin:0px;
+  box-sizing: border-box;
+}
+
+/* .collection-container {
+  border:0px;
+  background: #296CF2;
+  border-radius:10px;
+  width:165px;
+  height:115px;
+  padding:10px;
+  margin-right:10px;
+  margin-bottom:10px;
+} */
+
+button:hover {
+  cursor:pointer;
+}
+
+h1 {
+  font-family:Montserrat;
+  color:white;
+  margin-bottom:7.5px;
+  font-size:26px;
+}
+
+.task {
+  width:100%; 
+  border-radius:5px;
+  border:0px;
+  margin-bottom:10px;
+  background: #296CF2;
+  font-family: Roboto;
+}
+
+.panel {
+  border-radius:5px;
+  margin-right:30px;
+  padding:10px;
+  box-sizing:border-box;
+  margin-bottom:7.5px;
+  font-family: Roboto;
+  background:rgba(0,0,0,0.5);
+  color:white;
+  display:block;
+  width:90%;
+  border:0px;
+  text-align:left;
+}
+
+.icon-container {
+  height:32px;
+  width:35px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  
+  margin-left:5px;
+  margin-top:5px;
+}
+
+.icon-container #mail {
+  width:17.5px;
+}
+
+.input-container {
+  width:90%;
+  max-width: 400px;
+  height: 43px;
+  display:flex;
+  
+  background: #2C3340;
+  border: 1px solid #000000;
+  box-sizing: border-box;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  margin-bottom:15px;
+}
+
+input {
+  width:100%;
+  height:100%;
+  border-radius:8px;
+  border:0px;
+  background:transparent;
+  color: rgba(241, 244, 255, 0.63);
+  padding:5px;
+  font-size:17.5px;
+  font-family: Montserrat;
+}
+
+input:focus, textarea:focus, select:focus{
+      outline: none;
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+.add-task {
+  width:100%;
+  background:0px;
+  border:0px;
+  font-family:Roboto;
+  font-size:20px;
+  color:white;
+  font-weight:500;
+}
+
+.add-task-container {
+  width:90%;
+  max-width: 400px;
+  height: 43px;
+  display:flex;
+  
+  background: #296CF2;
+  border: 1px solid #000000;
+  box-sizing: border-box;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  margin-bottom:15px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.disclaimer {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11.5px;
+
+  color: rgba(255, 255, 255, 0.71);
+  
+  padding-bottom:15px;
+  text-align:center;
+}
+
+.panel-container {
+  width:100%; max-width:200px; height:100%; margin-right:15px;
+}
+
+.passed {
+  background: #ff004d;
+}
+
+.completed {
+  background: #49d615 !important;
+}
+
+.hide {
+  display: none !important;
+}
+
+* {
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+@media only screen and (max-width: 600px) {
+  #panelText {
+    display:none;
+  }
+  
+  .panel-container {
+    width:40px;
+  }
+}
+/* 
+body {
+  background:white;
+} */
+
+.light-mode {
+  color:black;
+  background:white;
+}
